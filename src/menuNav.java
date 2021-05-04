@@ -12,7 +12,7 @@ public class menuNav {
 
 
         System.out.format("---------------------------------------------------%n");
-        System.out.format("| Kodlama.İO Hoşgeldiniz  - Lütfen Giriş Yapınız  |%n");
+        System.out.format("| Game Rental Uygulamasına Hoşgeldiniz  - Lütfen Giriş Yapınız  |%n");
         System.out.format("---------------------------------------------------%n");
 
 

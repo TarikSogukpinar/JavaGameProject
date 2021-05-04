@@ -1,122 +1,104 @@
+
+
+import Concrete.*;
+import Constants.Messages;
+import Entities.Concrete.Campaign;
+import Entities.Concrete.Game;
+import Entities.Concrete.Gamer;
+
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
+
         Scanner scanner = new Scanner(System.in);
         menuNav.Menu();
 
-        User user = new User(1, "Tarik", "Sogukpınar", "Konya", "ledunv@protonmail.com", true);
-        Instructor instructor = new Instructor(1, 2, "Engin", "Demiroğ", "Ankara", "engindemiroğ@gmail.com", true);
-        Student student = new Student(3, 1, "Yasin", "Sogukpınar", "Istanbul", "blank@hotmail.com", true);
+        Game game1 = new Game(1, 200, "Witcher 3");
+        Game game2 = new Game(2, 100, "Age of Empires");
 
-        UserManager userManager = new UserManager();
-        InstructorManager instructorManager = new InstructorManager();
-        StudentManager studentManager = new StudentManager();
+        Game[] games = {game1, game2};
+
+        Campaign campaign1 = new Campaign(1, "Yaz sonu kampanyası");
+        Campaign campaign2 = new Campaign(2, "Kış sonu kampanyası");
+
+        Campaign[] campaigns = {campaign1, campaign2};
 
 
-        System.out.println(Messages.userName);
-        String username = scanner.next();
-        System.out.println(Messages.email);
-        String email = scanner.next();
-        final String[] checkUserNameAndEmail = {user.getUserFirstName(), user.getEmailAddress(), instructor.getUserFirstName(), instructor.getEmailAddress()};
+        giveMessage(Messages.userName);
+        String firstName = scanner.next();
+        giveMessage(Messages.userLastName);
+        String lastName = scanner.next();
+        giveMessage(Messages.userNationalId);
+        String nationalId = scanner.next();
+        giveMessage(Messages.userBirthYear);
+        String birthYear = scanner.next();
 
-        if (username.equals(checkUserNameAndEmail[0]) && email.equals(checkUserNameAndEmail[1])) {
-            userMenuTitle(username);
+        GameManager gamerManager = new GameManager();
+        CampaignManager campaignManager = new CampaignManager();
+
+        GamerManager gameManager = new GamerManager(new UserValidationManager()); //Check Gamers
+        Gamer gamerInput = new Gamer(firstName, lastName, birthYear, nationalId);
+        boolean IsAuto = gameManager.Login(gamerInput);
+        if (IsAuto) {
+            giveMessage(Messages.welcomeGameMenu);
+            giveMessage(Messages.listGames);
+            giveMessage(Messages.showCampaign);
+            giveMessage(Messages.showCampaignMenu);
             int inputUserAnswer = scanner.nextInt();
-            switch (inputUserAnswer) {
-                case 1 -> getActiveCourse();
-                case 2 -> getPassiveCourse();
-                default -> System.out.println(Messages.youDontHaveChoose);
-            }
 
-        } else if (username.equals(checkUserNameAndEmail[2]) && email.equals(checkUserNameAndEmail[3])) {
-            managerMenuTitle(username);
-            int inputInstructorAnswer = scanner.nextInt();
-            switch (inputInstructorAnswer) {
-                case 1 -> getActiveCourse();
-                case 2 -> courseAdded(scanner);
-                case 3 -> deleteCourse(scanner);
-                case 4 -> userManager.Add(user);
-                case 5 -> instructorManager.Add(instructor);
-                case 6 -> studentManager.Add(student);
-                case 7 -> getAllSystemUsers(user, instructor, student);
-                default -> System.out.println(Messages.youDontHaveChoose);
+            switch (inputUserAnswer) {
+                case 1:
+                    for (Game gamer : games) {
+                        giveMessage(gamer.getGameName() + " " + gamer.getGamePrice());
+                    }
+                    gamerManager.Add(games[0]);
+                    gamerManager.Delete(games[0]);
+                    gamerManager.Update(games[0]);
+                    break;
+                case 2:
+                    for (Campaign campaign : campaigns) {
+                        giveMessage(campaign.getCampaignName());
+                    }
+                    break;
+                case 3:
+                    giveMessage(Messages.addCampaign);
+                    giveMessage(Messages.deleteCampaign);
+                    giveMessage(Messages.updateCampaign);
+                    int inputUserAnswer1 = scanner.nextInt();
+                    switch (inputUserAnswer1) {
+                        case 1 -> {
+                            campaignManager.Add(campaigns[0], games[0]);
+                            campaignManager.Add(campaigns[1], games[1]);
+                        }
+                        case 2 -> {
+                            campaignManager.Delete(campaigns[0], games[0]);
+                            campaignManager.Delete(campaigns[1], games[1]);
+                        }
+                        case 3 -> {
+                            campaignManager.Update(campaigns[0], games[0]);
+                            campaignManager.Update(campaigns[1], games[1]);
+                        }
+                        default -> giveMessage(Messages.youDontHaveChoose);
+                    }
+
+                    break;
+                default:
+                    giveMessage(Messages.youDontHaveChoose);
+                    break;
             }
         } else {
-            System.out.println(Messages.accessDenied);
+            giveMessage(Messages.accessDenied);
         }
 
+
     }
 
-    private static void getAllSystemUsers(User user, Instructor instructor, Student student) {
-        User[] users = {user, student, instructor};
-        for (User user1 : users) {
-            System.out.println(user1.getUserId() + " " + user1.getUserFirstName() + " " + user1.getUserLastName() + " " + user1.getUserAddress() + " " + user1.getEmailAddress());
-        }
+    public static void giveMessage(String msg) {
+        System.out.println(msg);
     }
-
-    private static void managerMenuTitle(String username) {
-        System.out.println(Messages.welcomeAdminMessage + " " + username);
-        System.out.println(Messages.accessSuccessFull + " " + Messages.makeChoose);
-        System.out.println(Messages.showActiveCourse);
-        System.out.println(Messages.addCourse);
-        System.out.println(Messages.deleteCourse);
-        System.out.println(Messages.addUser);
-        System.out.println(Messages.addInstructor);
-        System.out.println(Messages.addStudent);
-        System.out.println(Messages.getAllStudent);
-    }
-
-    private static void userMenuTitle(String username) {
-        System.out.println(Messages.welcomeMessage + " " + username);
-        System.out.println(Messages.accessSuccessFull);
-        System.out.println(Messages.courseWelcome + " " + Messages.makeChoose);
-        System.out.println(Messages.showActiveCourse);
-        System.out.println(Messages.nextCourse);
-    }
-
-    private static void getPassiveCourse() {
-        Course course1 = new Course(Messages.csharpAngularMessage, Messages.backEndMessage);
-        Course course2 = new Course(Messages.javaReactMessage, Messages.backEndMessage);
-        Course course3 = new Course(Messages.pythonVueMessage, Messages.backEndMessage);
-        Course course4 = new Course(Messages.javaScriptVueMessage, Messages.backEndMessage);
-        Course[] courses = {course1, course2, course3, course4};
-        for (Course course : courses) {
-            System.out.println(course.courseName + course.courseType);
-        }
-    }
-
-    private static void getActiveCourse() {
-        ActiveCourse activeCourse1 = new ActiveCourse(Messages.csharpAngularMessage, Messages.backEndMessage);
-        ActiveCourse activeCourse2 = new ActiveCourse(Messages.javaReactMessage, Messages.backEndMessage);
-        ActiveCourse[] activeCourses = {activeCourse1, activeCourse2};
-        for (ActiveCourse activeCourse : activeCourses) {
-            System.out.println(activeCourse.courseName + activeCourse.courseType);
-        }
-    }
-
-
-    private static void deleteCourse(Scanner scanner) {
-        ActiveCourse activeCourse = new ActiveCourse();
-        System.out.println(Messages.courseName + Messages.courseType);
-        String deleteCourseName = scanner.next();
-        String deleteCourseName1 = scanner.next();
-        System.out.println(deleteCourseName + " " + deleteCourseName1);
-        activeCourse.Delete();
-    }
-
-    private static void courseAdded(Scanner scanner) {
-        ActiveCourse activeCourse = new ActiveCourse();
-        System.out.println(Messages.courseName + " " + Messages.courseType);
-        String courseName = scanner.next();
-        String courseName1 = scanner.next();
-        System.out.println(courseName + " " + courseName1);
-        activeCourse.Add();
-    }
-
-
 }
 
 
